@@ -3,520 +3,616 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kalkulator Cen – Laser Diodowy</title>
+<title>Laser Price Calc</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Exo+2:wght@300;400;600;700&display=swap');
-  :root {
-    --bg:#0a0c10; --panel:#111418; --border:#1e2530;
-    --accent:#00d4ff; --accent2:#ff6b35; --accent3:#39ff14;
-    --text:#c8d8e8; --dim:#5a6a7a; --bright:#e8f4ff; --input:#0d1117;
-    --glow:0 0 12px rgba(0,212,255,0.3); --glow2:0 0 12px rgba(255,107,53,0.3);
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;
-    background-image:radial-gradient(ellipse at 20% 0%,rgba(0,212,255,0.05) 0%,transparent 50%),
-    radial-gradient(ellipse at 80% 100%,rgba(255,107,53,0.04) 0%,transparent 50%)}
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
 
-  /* HEADER */
-  header{background:linear-gradient(135deg,#0d1117,#111a22);border-bottom:1px solid var(--border);
-    padding:14px 28px;display:flex;align-items:center;gap:14px;
-    position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.5)}
-  .logo{width:42px;height:42px;background:linear-gradient(135deg,var(--accent),#0077aa);
-    border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:var(--glow)}
-  header h1{font-family:'Rajdhani',sans-serif;font-size:20px;font-weight:700;color:var(--bright);
-    letter-spacing:2px;text-transform:uppercase}
-  header h1 span{color:var(--accent)}
-  .vtag{margin-left:auto;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.2);
-    color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:11px;padding:3px 10px;border-radius:20px}
+:root{
+  --bg:#07080a; --s1:#0d0f12; --s2:#12151a; --s3:#181c22;
+  --brd:#232830; --brd2:#2d3440;
+  --c:#00e5ff; --cg:#00ff88; --co:#ff7043; --cy:#ffd740; --cp:#e040fb; --cm:#60a5fa;
+  --txt:#b0bec5; --txtb:#e0eaf0; --dim:#4a5568;
+  --glow:0 0 20px rgba(0,229,255,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--txt);
+  font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 35% at 50% 0%,rgba(0,229,255,.05) 0%,transparent 65%),
+    radial-gradient(ellipse 40% 30% at 90% 100%,rgba(0,255,136,.03) 0%,transparent 60%);
+}
 
-  /* LAYOUT */
-  .wrap{max-width:1720px;margin:0 auto;padding:18px 16px}
-  .grid{display:grid;grid-template-columns:390px 1fr;gap:18px;margin-bottom:18px}
-  @media(max-width:1100px){.grid{grid-template-columns:1fr}}
+/* HEADER */
+header{
+  position:sticky;top:0;z-index:50;
+  background:rgba(7,8,10,.94);backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--brd);
+  padding:0 32px;height:54px;
+  display:flex;align-items:center;gap:14px;
+}
+.hpulse{width:7px;height:7px;border-radius:50%;background:var(--cg);box-shadow:0 0 8px var(--cg);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hlogo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--txtb);letter-spacing:-.3px}
+.hlogo em{color:var(--c);font-style:normal}
+.hbadge{margin-left:auto;font-family:'DM Mono',monospace;font-size:10px;color:var(--c);background:rgba(0,229,255,.07);border:1px solid rgba(0,229,255,.2);padding:3px 10px;border-radius:20px;letter-spacing:.5px}
 
-  /* PANEL */
-  .panel{background:var(--panel);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-  .ph{background:linear-gradient(90deg,#141b22,#111820);border-bottom:1px solid var(--border);
-    padding:10px 16px;display:flex;align-items:center;gap:10px}
-  .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:var(--glow)}
-  .dot.o{background:var(--accent2);box-shadow:var(--glow2)}
-  .dot.g{background:var(--accent3);box-shadow:0 0 8px rgba(57,255,20,.4)}
-  .dot.y{background:#ffd700;box-shadow:0 0 8px rgba(255,215,0,.4)}
-  .ph h2{font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:600;
-    letter-spacing:2px;text-transform:uppercase;color:var(--dim)}
-  .pb{padding:16px}
+/* WRAP */
+.wrap{position:relative;z-index:1;max-width:1700px;margin:0 auto;padding:22px 24px 48px;display:flex;flex-direction:column;gap:18px}
 
-  /* FIELDS */
-  .fg{margin-bottom:12px}
-  .fg label{display:block;font-size:10px;font-weight:600;letter-spacing:1.5px;
-    text-transform:uppercase;color:var(--dim);margin-bottom:4px}
-  .fg label span{color:var(--accent)}
-  .ir{display:flex;gap:7px;align-items:center}
-  .ir input,.ir select{flex:1;background:var(--input);border:1px solid var(--border);border-radius:6px;
-    color:var(--bright);font-family:'Share Tech Mono',monospace;font-size:14px;
-    padding:7px 10px;outline:none;transition:border-color .2s,box-shadow .2s}
-  .ir input:focus,.ir select:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,212,255,.1)}
-  .ul{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--dim);white-space:nowrap;min-width:36px}
-  .hint{font-size:10px;color:var(--dim);margin-top:3px;font-style:italic}
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--brd);border-radius:16px;overflow:hidden}
+.ch{padding:11px 20px;background:var(--s2);border-bottom:1px solid var(--brd);display:flex;align-items:center;gap:10px}
+.ch h2{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim)}
+.led{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.led.c{background:var(--c);box-shadow:0 0 7px var(--c)}
+.led.g{background:var(--cg);box-shadow:0 0 7px var(--cg)}
+.led.o{background:var(--co);box-shadow:0 0 7px var(--co)}
+.led.y{background:var(--cy);box-shadow:0 0 7px var(--cy)}
 
-  /* REF BOXES */
-  .refs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
-  .rb{background:var(--input);border-radius:8px;padding:12px}
-  .rb.ra{border:1px solid rgba(0,212,255,.35)}
-  .rb.rb2{border:1px solid rgba(255,215,0,.35)}
-  .rbt{font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;
-    letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;
-    padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.07)}
-  .ra .rbt{color:var(--accent)} .rb2 .rbt{color:#ffd700}
-  .rf{margin-bottom:8px}
-  .rf label{display:block;font-size:10px;font-weight:600;letter-spacing:1px;
-    text-transform:uppercase;color:var(--dim);margin-bottom:3px}
-  .rf input{width:100%;background:#080c10;border:1px solid var(--border);border-radius:5px;
-    color:var(--bright);font-family:'Share Tech Mono',monospace;font-size:13px;
-    padding:6px 8px;outline:none;transition:border-color .2s}
-  .ra .rf input:focus{border-color:var(--accent)} .rb2 .rf input:focus{border-color:#ffd700}
-  .tw{display:flex;gap:5px;align-items:center}
-  .tw input{width:50px;background:#080c10;border:1px solid var(--border);border-radius:5px;
-    color:var(--bright);font-family:'Share Tech Mono',monospace;font-size:13px;
-    padding:6px;outline:none;text-align:center;transition:border-color .2s}
-  .tsep{color:var(--accent);font-weight:700;font-size:14px}
-  .tsep.g{color:#ffd700}
+/* ══════════════════════════════
+   SEKCJA PARAMETRÓW – GÓRNY PAS
+══════════════════════════════ */
+.params-grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap:0;
+}
+.params-grid > .pg{
+  padding:20px 22px;
+  border-right:1px solid var(--brd);
+}
+.params-grid > .pg:last-child{border-right:none}
 
-  /* +15% NOTICE */
-  .notice15{background:rgba(57,255,20,.05);border:1px solid rgba(57,255,20,.2);
-    border-radius:7px;padding:8px 12px;font-size:11px;color:#39ff14;margin-bottom:14px}
-  .notice15 strong{display:block;font-size:12px;margin-bottom:2px}
+/* Sekcja etykieta */
+.slabel{
+  font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--c);margin-bottom:14px;padding-bottom:7px;
+  border-bottom:1px solid rgba(0,229,255,.14);
+}
 
-  /* ALGO BOX */
-  .algo{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.15);
-    border-radius:8px;padding:9px 13px;font-size:11px;color:var(--dim);margin-bottom:14px;line-height:1.6}
-  .algo strong{color:var(--accent)}
-  .algo .fm{font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--accent3);margin-top:3px}
+/* Pola formularza */
+.field{margin-bottom:13px}
+.field:last-child{margin-bottom:0}
+.field label{
+  display:block;font-family:'DM Mono',monospace;
+  font-size:9px;letter-spacing:1.5px;text-transform:uppercase;
+  color:var(--dim);margin-bottom:5px;
+}
+.field label b{color:var(--c)}
+.ir{display:flex;gap:7px;align-items:center}
+.ir input{
+  flex:1;background:var(--bg);border:1px solid var(--brd2);border-radius:9px;
+  color:var(--txtb);font-family:'DM Mono',monospace;font-size:15px;
+  padding:10px 13px;outline:none;
+  transition:border-color .15s,box-shadow .15s;
+}
+.ir input:focus{border-color:var(--c);box-shadow:0 0 0 3px rgba(0,229,255,.09)}
+.unit{font-family:'DM Mono',monospace;font-size:11px;color:var(--dim);min-width:44px;white-space:nowrap}
+.hint{font-size:10px;color:var(--dim);margin-top:4px;font-style:italic}
 
-  /* THICKNESS */
-  .tg{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;margin-top:5px}
-  .tb{background:var(--input);border:1px solid var(--border);border-radius:5px;
-    color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:11px;
-    padding:6px 3px;cursor:pointer;text-align:center;transition:all .15s}
-  .tb:hover{border-color:var(--accent);color:var(--accent)}
-  .tb.on{background:rgba(0,212,255,.12);border-color:var(--accent);color:var(--accent);box-shadow:var(--glow)}
+/* REF BOXES – side by side inside column */
+.rbox{padding:13px;border-radius:11px;background:var(--bg);margin-bottom:10px}
+.rbox.ra{border:1px solid rgba(0,229,255,.28)}
+.rbox.rb{border:1px solid rgba(255,215,64,.28)}
+.rbox-title{font-family:'Syne',sans-serif;font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.06)}
+.ra .rbox-title{color:var(--c)} .rb .rbox-title{color:var(--cy)}
+.rf{margin-bottom:8px}
+.rf label{display:block;font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.rf input{width:100%;background:var(--s1);border:1px solid var(--brd);border-radius:7px;color:var(--txtb);font-family:'DM Mono',monospace;font-size:14px;padding:8px 10px;outline:none;transition:border-color .15s}
+.ra .rf input:focus{border-color:var(--c)} .rb .rf input:focus{border-color:var(--cy)}
+.tw{display:flex;gap:5px;align-items:center}
+.tw input{width:52px;text-align:center;background:var(--s1);border:1px solid var(--brd);border-radius:7px;color:var(--txtb);font-family:'DM Mono',monospace;font-size:14px;padding:8px 5px;outline:none;transition:border-color .15s}
+.ra .tw input:focus{border-color:var(--c)} .rb .tw input:focus{border-color:var(--cy)}
+.tsep{color:var(--c);font-weight:700;font-size:15px;line-height:1}
+.tsep.y{color:var(--cy)}
 
-  hr.dv{border:none;border-top:1px solid var(--border);margin:12px 0}
-  .sl{font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;
-    color:var(--accent);margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid rgba(0,212,255,.15)}
-  .tc{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* Grubości */
+.tg{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:5px}
+.tb{background:var(--bg);border:1px solid var(--brd);border-radius:7px;color:var(--dim);font-family:'DM Mono',monospace;font-size:12px;padding:8px 3px;cursor:pointer;text-align:center;transition:all .12s}
+.tb:hover{border-color:var(--c);color:var(--c)}
+.tb.on{background:rgba(0,229,255,.1);border-color:var(--c);color:var(--c);box-shadow:var(--glow)}
 
-  /* CALC BUTTON */
-  .btn{width:100%;background:linear-gradient(135deg,#004d7a,#0077aa);
-    border:1px solid var(--accent);border-radius:8px;color:#fff;
-    font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;
-    letter-spacing:3px;text-transform:uppercase;padding:12px;
-    cursor:pointer;transition:all .2s;box-shadow:var(--glow);margin-top:4px}
-  .btn:hover{background:linear-gradient(135deg,#0077aa,#00aadd);
-    transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,212,255,.4)}
-  .btn:active{transform:translateY(0)}
+.notice{background:rgba(0,255,136,.04);border:1px solid rgba(0,255,136,.15);border-radius:8px;padding:9px 13px;font-size:10px;color:var(--cg);line-height:1.5;margin-bottom:13px}
+.notice strong{display:block;font-size:11px;margin-bottom:2px}
 
-  /* SUMMARY CARDS */
-  .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
-  .sc{background:var(--input);border:1px solid var(--border);border-radius:10px;
-    padding:11px 13px;position:relative;overflow:hidden}
-  .sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-  .sc.b::before{background:linear-gradient(90deg,var(--accent),transparent)}
-  .sc.o::before{background:linear-gradient(90deg,var(--accent2),transparent)}
-  .sc.g::before{background:linear-gradient(90deg,var(--accent3),transparent)}
-  .sc.p::before{background:linear-gradient(90deg,#a855f7,transparent)}
-  .sc.y::before{background:linear-gradient(90deg,#ffd700,transparent)}
-  .sc .lbl{font-size:9px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
-  .sc .val{font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:700;color:var(--bright)}
-  .sc.b .val{color:var(--accent)} .sc.o .val{color:var(--accent2)}
-  .sc.g .val{color:var(--accent3)} .sc.p .val{color:#c084fc} .sc.y .val{color:#ffd700}
-  .sc .sub{font-size:10px;color:var(--dim);margin-top:3px}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-  /* TABLE */
-  .tw2{overflow-x:auto}
-  table{width:100%;border-collapse:collapse;font-size:12px}
-  thead tr{background:#0d1520;border-bottom:2px solid var(--accent)}
-  thead th{padding:9px 10px;text-align:left;font-family:'Rajdhani',sans-serif;
-    font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
-    color:var(--dim);white-space:nowrap}
-  thead th.r{text-align:right}
-  tbody tr:nth-child(even){background:#0f1318} tbody tr:nth-child(odd){background:#111620}
-  tbody tr:hover{background:rgba(0,212,255,.04)}
-  tbody tr.rA{background:rgba(0,212,255,.07)!important;border-left:3px solid var(--accent)}
-  tbody tr.rB{background:rgba(255,215,0,.06)!important;border-left:3px solid #ffd700}
-  tbody td{padding:8px 10px;font-family:'Share Tech Mono',monospace;color:var(--text);
-    border-bottom:1px solid rgba(255,255,255,.03);white-space:nowrap}
-  tbody td.r{text-align:right}
-  tbody td.pf{color:var(--accent3);font-weight:700;font-size:13px}
-  tbody td.pa{color:var(--accent2);font-weight:600}
-  tbody td.dl{color:var(--accent)}
-  .bx{font-size:8px;font-weight:700;letter-spacing:1px;padding:2px 5px;
-    border-radius:3px;margin-left:4px;text-transform:uppercase;vertical-align:middle}
-  .bxa{background:rgba(0,212,255,.15);border:1px solid rgba(0,212,255,.3);color:var(--accent)}
-  .bxb{background:rgba(255,215,0,.12);border:1px solid rgba(255,215,0,.3);color:#ffd700}
+/* CALC BUTTON */
+.btn-calc{
+  width:100%;margin-top:6px;
+  background:linear-gradient(135deg,rgba(0,229,255,.14),rgba(0,229,255,.07));
+  border:1px solid var(--c);border-radius:11px;
+  color:var(--c);font-family:'Syne',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:3px;text-transform:uppercase;padding:14px;cursor:pointer;
+  transition:all .2s;box-shadow:var(--glow);
+}
+.btn-calc:hover{background:linear-gradient(135deg,rgba(0,229,255,.24),rgba(0,229,255,.14));transform:translateY(-1px);box-shadow:0 6px 28px rgba(0,229,255,.3)}
+.btn-calc:active{transform:translateY(0)}
 
-  /* ALGO PARAMS */
-  .ap{margin-top:12px;background:var(--input);border:1px solid var(--border);
-    border-radius:8px;padding:10px 14px;display:grid;
-    grid-template-columns:repeat(4,1fr);gap:8px}
-  .ap .apl{font-size:9px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px}
-  .ap .apv{font-family:'Share Tech Mono',monospace;font-size:13px}
+/* ══════════════════════════════
+   PODSUMOWANIE
+══════════════════════════════ */
+.summary-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+}
+.sg-half{padding:20px 22px}
+.sg-half:first-child{border-right:1px solid var(--brd)}
+.sg-title{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px}
+.sg-title.c{color:var(--c)} .sg-title.y{color:var(--cy)}
+.sg-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sc{background:var(--bg);border:1px solid var(--brd);border-radius:10px;padding:13px 14px;position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.sc.c::after{background:linear-gradient(90deg,var(--c),transparent)}
+.sc.g::after{background:linear-gradient(90deg,var(--cg),transparent)}
+.sc.o::after{background:linear-gradient(90deg,var(--co),transparent)}
+.sc.y::after{background:linear-gradient(90deg,var(--cy),transparent)}
+.sc .l{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:5px}
+.sc .v{font-family:'DM Mono',monospace;font-size:17px;font-weight:500}
+.sc.c .v{color:var(--c)} .sc.g .v{color:var(--cg)} .sc.o .v{color:var(--co)} .sc.y .v{color:var(--cy)}
 
-  .rt{display:flex;flex-direction:column;gap:18px}
+/* ALGO ROW */
+.algo-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--brd)}
+.ap{padding:12px 20px;border-right:1px solid var(--brd)}
+.ap:last-child{border-right:none}
+.ap .al{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.ap .av{font-family:'DM Mono',monospace;font-size:13px}
 
-  /* STATUS */
-  .sb{background:#0d1117;border-top:1px solid var(--border);padding:7px 28px;
-    display:flex;gap:20px;align-items:center;font-family:'Share Tech Mono',monospace;
-    font-size:11px;color:var(--dim)}
-  .sd{color:var(--accent3)}
+/* ══════════════════════════════
+   TABELA
+══════════════════════════════ */
+.tbl-wrap{overflow-x:auto}
+.click-hint{text-align:center;padding:9px 16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:1px;border-bottom:1px solid var(--brd)}
+.click-hint span{color:var(--c)}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+thead tr{background:var(--s2);border-bottom:1px solid var(--c)}
+thead th{padding:10px 12px;text-align:left;font-family:'Syne',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--dim);white-space:nowrap}
+thead th.r{text-align:right}
+tbody tr{cursor:pointer;transition:background .1s;border-bottom:1px solid rgba(255,255,255,.02)}
+tbody tr:hover{background:rgba(0,229,255,.06)!important}
+tbody tr.row-a{background:rgba(0,229,255,.07);border-left:3px solid var(--c)}
+tbody tr.row-b{background:rgba(255,215,64,.05);border-left:3px solid var(--cy)}
+tbody tr:not(.row-a):not(.row-b):nth-child(even){background:rgba(255,255,255,.013)}
+tbody td{padding:9px 12px;font-family:'DM Mono',monospace;color:var(--txt);white-space:nowrap}
+tbody td.r{text-align:right}
+tbody td.dim{color:var(--c);font-size:13px}
+tbody td.sell{color:var(--cg);font-weight:500;font-size:13px}
+tbody td.alleg{color:var(--co);font-weight:500}
+tbody td.pp{color:var(--cg)} tbody td.pn{color:#ff5252}
+.badge{font-size:7px;font-weight:700;letter-spacing:1px;padding:2px 5px;border-radius:3px;margin-left:5px;vertical-align:middle;text-transform:uppercase}
+.ba{background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.3);color:var(--c)}
+.bb{background:rgba(255,215,64,.1);border:1px solid rgba(255,215,64,.3);color:var(--cy)}
 
-  ::-webkit-scrollbar{width:6px;height:6px}
-  ::-webkit-scrollbar-track{background:var(--bg)}
-  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-  ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
+/* STATUS */
+.status{background:var(--s1);border-top:1px solid var(--brd);padding:7px 32px;display:flex;gap:20px;align-items:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);position:relative;z-index:1}
+.sdot{color:var(--cg)}
+
+/* ══════════════════════════════
+   MODAL
+══════════════════════════════ */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(7,8,10,.86);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--s1);border:1px solid var(--brd2);border-radius:20px;width:min(780px,95vw);max-height:92vh;overflow-y:auto;box-shadow:0 40px 90px rgba(0,0,0,.75),var(--glow);transform:translateY(24px) scale(.96);transition:transform .24s cubic-bezier(.34,1.56,.64,1);position:relative}
+.overlay.open .modal{transform:translateY(0) scale(1)}
+
+.mhead{padding:22px 28px 18px;border-bottom:1px solid var(--brd);display:flex;align-items:flex-start;gap:18px}
+.mdim{font-family:'Syne',sans-serif;font-size:36px;font-weight:800;color:var(--txtb);letter-spacing:-1.5px;line-height:1}
+.mdim span{color:var(--c)}
+.msub{font-size:11px;color:var(--dim);margin-top:5px;font-family:'DM Mono',monospace;line-height:1.6}
+.mclose{margin-left:auto;background:var(--s3);border:1px solid var(--brd2);border-radius:9px;color:var(--dim);width:34px;height:34px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .15s;flex-shrink:0}
+.mclose:hover{border-color:var(--co);color:var(--co)}
+
+.mbody{padding:22px 28px 28px}
+.mcards{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;margin-bottom:18px}
+.mc{background:var(--bg);border-radius:13px;padding:16px 18px;position:relative;overflow:hidden;border:1px solid var(--brd);transition:border-color .15s}
+.mc:hover{border-color:var(--brd2)}
+.mc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.mc.mc-c::after{background:linear-gradient(90deg,var(--c),transparent)}
+.mc.mc-g::after{background:linear-gradient(90deg,var(--cg),transparent)}
+.mc.mc-o::after{background:linear-gradient(90deg,var(--co),transparent)}
+.mc.mc-y::after{background:linear-gradient(90deg,var(--cy),transparent)}
+.mc.mc-p::after{background:linear-gradient(90deg,var(--cp),transparent)}
+.mc.mc-m::after{background:linear-gradient(90deg,var(--cm),transparent)}
+.mc .mcl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:7px}
+.mc .mcv{font-family:'DM Mono',monospace;font-size:28px;font-weight:400;line-height:1}
+.mc.mc-c .mcv{color:var(--c)} .mc.mc-g .mcv{color:var(--cg)} .mc.mc-o .mcv{color:var(--co)}
+.mc.mc-y .mcv{color:var(--cy)} .mc.mc-p .mcv{color:var(--cp)} .mc.mc-m .mcv{color:var(--cm)}
+.mc .mcs{font-size:10px;color:var(--dim);margin-top:5px}
+
+.dtbl{background:var(--bg);border:1px solid var(--brd);border-radius:11px;overflow:hidden;margin-bottom:14px}
+.dr{display:grid;grid-template-columns:1fr auto;padding:9px 16px;border-bottom:1px solid rgba(255,255,255,.03);align-items:center}
+.dr:last-child{border-bottom:none}
+.dr:hover{background:rgba(255,255,255,.02)}
+.drl{font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.5px}
+.drv{font-family:'DM Mono',monospace;font-size:13px;color:var(--txtb);text-align:right}
+.drv.hl{color:var(--cg);font-weight:500} .drv.hlo{color:var(--co);font-weight:500}
+
+.pbar-wrap{background:var(--bg);border:1px solid var(--brd);border-radius:11px;padding:14px 16px}
+.pbar-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);margin-bottom:9px}
+.pbar-track{height:7px;background:var(--s3);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.pbar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--cg),var(--c));transition:width .6s cubic-bezier(.34,1.56,.64,1);box-shadow:0 0 8px rgba(0,255,136,.4)}
+.pbar-nums{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px}
+
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--brd2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--c)}
 </style>
 </head>
 <body>
 
 <header>
-  <div class="logo">⚡</div>
-  <h1>Laser <span>Price</span> Calculator</h1>
-  <div class="vtag">v4.0 · FIXED · DUAL-REF</div>
+  <div class="hpulse"></div>
+  <div class="hlogo">Laser <em>Price</em> Calc</div>
+  <div class="hbadge">v4.0 · DUAL-REF</div>
 </header>
 
 <div class="wrap">
-<div class="grid">
 
-  <!-- LEFT PANEL -->
-  <div class="panel">
-    <div class="ph"><div class="dot"></div><h2>Parametry produktu</h2></div>
-    <div class="pb">
+  <!-- ══ 1. PARAMETRY (górny pas, cała szerokość) ══ -->
+  <div class="card">
+    <div class="ch"><div class="led c"></div><h2>Parametry produktu i koszty</h2></div>
+    <div class="params-grid">
 
-      <div class="sl">Dwa punkty kalibracyjne</div>
-      <div class="refs">
-        <!-- REF A -->
-        <div class="rb ra">
-          <div class="rbt">⬡ Ref A — 5 cm</div>
-          <div class="rf">
-            <label>Szerokość [cm]</label>
-            <input type="number" id="w5" value="4.5" step="0.1" min="0.01">
-          </div>
-          <div class="rf">
-            <label>Czas lasera</label>
-            <div class="tw">
-              <input type="number" id="t5m" value="0" min="0" placeholder="min">
-              <span class="tsep">:</span>
-              <input type="number" id="t5s" value="57" min="0" max="59" placeholder="sek">
-            </div>
+      <!-- KOL 1: Ref A -->
+      <div class="pg">
+        <div class="slabel">Ref A — 5 cm (bazowy)</div>
+        <div class="rbox ra">
+          <div class="rbox-title">⬡ Wymiar 5 cm</div>
+          <div class="rf"><label>Szerokość [cm]</label><input type="number" id="w5" value="4.5" step="0.1" min="0.01"></div>
+          <div class="rf"><label>Czas lasera (min : sek)</label>
+            <div class="tw"><input type="number" id="t5m" value="0" min="0"><span class="tsep">:</span><input type="number" id="t5s" value="57" min="0" max="59"></div>
           </div>
         </div>
-        <!-- REF B -->
-        <div class="rb rb2">
-          <div class="rbt">⬡ Ref B — 10 cm</div>
-          <div class="rf">
-            <label>Szerokość [cm]</label>
-            <input type="number" id="w10" value="9.0" step="0.1" min="0.01">
-          </div>
-          <div class="rf">
-            <label>Czas lasera</label>
-            <div class="tw">
-              <input type="number" id="t10m" value="1" min="0" placeholder="min">
-              <span class="tsep g">:</span>
-              <input type="number" id="t10s" value="52" min="0" max="59" placeholder="sek">
-            </div>
-          </div>
+        <div class="field">
+          <label>Bufor czasu lasera <b>*</b></label>
+          <div class="ir"><input type="number" id="time_buf" value="15" step="1" min="0" max="100"><span class="unit">%</span></div>
+          <div class="hint">Dodatkowy % czasu pracy lasera (np. 15 = +15%)</div>
+        </div>
+        <div class="field">
+          <label>Grubość materiału</label>
+          <div class="tg" id="tg"></div>
+        </div>
+        <div class="field" style="margin-top:10px">
+          <label>Cena materiału / cm² <b>*</b></label>
+          <div class="ir"><input type="number" id="mat_price" value="0.0050" step="0.0001" min="0.0001"><span class="unit">zł/cm²</span></div>
+          <div class="hint" id="mhint">4mm: 0.0050 zł/cm²</div>
         </div>
       </div>
 
-      <div class="notice15">
-        <strong>⏱ +15% czasu – automatycznie</strong>
-        Do każdego wyliczonego czasu dodawane jest +15% jako bufor bezpieczeństwa.
-      </div>
-
-      <div class="algo">
-        <strong>Algorytm potęgowy (2 punkty kalibracji):</strong><br>
-        <span class="fm">Czas(h) = A × h^B &nbsp;·&nbsp; Szerokość(h) = C × h^D</span>
-        Współczynniki A,B,C,D wyznaczane są z Ref A i Ref B, co daje dokładną interpolację i ekstrapolację dla każdego wymiaru.
-      </div>
-
-      <!-- GRUBOŚĆ -->
-      <div class="fg">
-        <label>Grubość materiału</label>
-        <div class="tg" id="tg"></div>
-      </div>
-
-      <div class="fg" style="margin-top:8px">
-        <label>Cena materiału za 1 cm² <span>*</span></label>
-        <div class="ir">
-          <input type="number" id="mat_price" value="0.0050" step="0.0001" min="0.0001">
-          <span class="ul">zł/cm²</span>
+      <!-- KOL 2: Ref B -->
+      <div class="pg">
+        <div class="slabel">Ref B — 10 cm (drugi punkt)</div>
+        <div class="rbox rb">
+          <div class="rbox-title">⬡ Wymiar 10 cm</div>
+          <div class="rf"><label>Szerokość [cm]</label><input type="number" id="w10" value="9.0" step="0.1" min="0.01"></div>
+          <div class="rf"><label>Czas lasera (min : sek)</label>
+            <div class="tw"><input type="number" id="t10m" value="1" min="0"><span class="tsep y">:</span><input type="number" id="t10s" value="52" min="0" max="59"></div>
+          </div>
         </div>
-        <div class="hint" id="mhint">4mm sklejka: 0.0050 zł/cm²</div>
-      </div>
-
-      <hr class="dv">
-      <div class="sl">Stawki i koszty</div>
-
-      <div class="tc">
-        <div class="fg">
-          <label>Stawka laser [zł/min]</label>
-          <div class="ir"><input type="number" id="laser_rate" value="1.50" step="0.10" min="0"></div>
+        <div class="field" style="margin-top:12px">
+          <label>Stawka lasera [zł/min]</label>
+          <div class="ir"><input type="number" id="laser_rate" value="1.50" step="0.10" min="0"><span class="unit">zł/min</span></div>
         </div>
-        <div class="fg">
+        <div class="field">
           <label>Marża [%]</label>
-          <div class="ir"><input type="number" id="margin" value="20" step="1" min="0" max="99"></div>
+          <div class="ir"><input type="number" id="margin" value="0" step="1" min="0" max="99"><span class="unit">%</span></div>
         </div>
-      </div>
-      <div class="tc">
-        <div class="fg">
-          <label>Prowizja Allegro [%]</label>
-          <div class="ir"><input type="number" id="allegro" value="9" step="0.5" min="0" max="99"></div>
-        </div>
-        <div class="fg">
-          <label>Koszt pakowania [zł]</label>
-          <div class="ir"><input type="number" id="pack" value="0.50" step="0.10" min="0"></div>
-        </div>
-      </div>
-      <div class="fg">
-        <label>Dodatkowe koszty [zł]</label>
-        <div class="ir"><input type="number" id="extra" value="0" step="0.10" min="0"></div>
       </div>
 
-      <button class="btn" onclick="calculate()">▶ OBLICZ WSZYSTKIE CENY</button>
+      <!-- KOL 3: Koszty dodatkowe -->
+      <div class="pg">
+        <div class="slabel">Koszty dodatkowe</div>
+        <div class="field">
+          <label>Prowizja Allegro [%]</label>
+          <div class="ir"><input type="number" id="allegro" value="19" step="0.5" min="0" max="99"><span class="unit">%</span></div>
+        </div>
+        <div class="field">
+          <label>Koszt pakowania [zł]</label>
+          <div class="ir"><input type="number" id="pack" value="0.50" step="0.10" min="0"><span class="unit">zł</span></div>
+        </div>
+        <div class="field">
+          <label>Dodatkowe koszty [zł]</label>
+          <div class="ir"><input type="number" id="extra" value="0" step="0.10" min="0"><span class="unit">zł</span></div>
+        </div>
+      </div>
+
+      <!-- KOL 4: Przycisk + info -->
+      <div class="pg" style="display:flex;flex-direction:column;justify-content:space-between">
+        <div class="slabel">Akcja</div>
+        <div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:10px">
+          <div style="background:var(--bg);border:1px solid var(--brd);border-radius:10px;padding:14px 16px;font-family:'DM Mono',monospace;font-size:10px;color:var(--dim);line-height:1.8">
+            <div style="color:var(--c);font-size:11px;margin-bottom:6px;letter-spacing:1px">ALGORYTM POTĘGOWY</div>
+            Czas(h) = A × h^B<br>
+            Szer(h) = C × h^D<br>
+            <span style="color:var(--cg)">Interpolacja 5→75 cm</span>
+          </div>
+        </div>
+        <button class="btn-calc" onclick="calculate()">▶ OBLICZ CENY</button>
+      </div>
+
     </div>
   </div>
 
-  <!-- RIGHT -->
-  <div class="rt">
-
-    <!-- SUMMARY DUAL -->
-    <div class="panel">
-      <div class="ph"><div class="dot o"></div><h2>Podsumowanie – punkty kalibracyjne</h2></div>
-      <div class="pb">
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-          <div>
-            <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--accent);margin-bottom:8px;text-transform:uppercase">Ref A — 5 cm</div>
-            <div class="sg" style="grid-template-columns:1fr 1fr">
-              <div class="sc b"><div class="lbl">Materiał</div><div class="val" id="sAm">—</div></div>
-              <div class="sc o"><div class="lbl">Laser (+15%)</div><div class="val" id="sAl">—</div></div>
-              <div class="sc g"><div class="lbl">Sprzedaż</div><div class="val" id="sAs">—</div></div>
-              <div class="sc y"><div class="lbl">Allegro</div><div class="val" id="sAa">—</div></div>
-            </div>
-          </div>
-          <div>
-            <div style="font-family:'Rajdhani',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:#ffd700;margin-bottom:8px;text-transform:uppercase">Ref B — 10 cm</div>
-            <div class="sg" style="grid-template-columns:1fr 1fr">
-              <div class="sc b"><div class="lbl">Materiał</div><div class="val" id="sBm">—</div></div>
-              <div class="sc o"><div class="lbl">Laser (+15%)</div><div class="val" id="sBl">—</div></div>
-              <div class="sc g"><div class="lbl">Sprzedaż</div><div class="val" id="sBs">—</div></div>
-              <div class="sc y"><div class="lbl">Allegro</div><div class="val" id="sBa">—</div></div>
-            </div>
-          </div>
+  <!-- ══ 2. PODSUMOWANIE ══ -->
+  <div class="card">
+    <div class="ch"><div class="led o"></div><h2>Podsumowanie punktów kalibracyjnych</h2></div>
+    <div class="summary-grid">
+      <div class="sg-half">
+        <div class="sg-title c">Ref A — 5 cm</div>
+        <div class="sg-cards">
+          <div class="sc c"><div class="l">Materiał</div><div class="v" id="sAm">—</div></div>
+          <div class="sc o"><div class="l">Laser +15%</div><div class="v" id="sAl">—</div></div>
+          <div class="sc g"><div class="l">Sprzedaż</div><div class="v" id="sAs">—</div></div>
+          <div class="sc y"><div class="l">Allegro</div><div class="v" id="sAa">—</div></div>
         </div>
-        <div class="ap">
-          <div><div class="apl">Wsp. czasu A</div><div class="apv" style="color:var(--accent3)" id="apA">—</div></div>
-          <div><div class="apl">Wykł. czasu B</div><div class="apv" style="color:var(--accent3)" id="apB">—</div></div>
-          <div><div class="apl">Wsp. szer. C</div><div class="apv" style="color:var(--accent)" id="apC">—</div></div>
-          <div><div class="apl">Wykł. szer. D</div><div class="apv" style="color:var(--accent)" id="apD">—</div></div>
+      </div>
+      <div class="sg-half">
+        <div class="sg-title y">Ref B — 10 cm</div>
+        <div class="sg-cards">
+          <div class="sc c"><div class="l">Materiał</div><div class="v" id="sBm">—</div></div>
+          <div class="sc o"><div class="l">Laser +15%</div><div class="v" id="sBl">—</div></div>
+          <div class="sc g"><div class="l">Sprzedaż</div><div class="v" id="sBs">—</div></div>
+          <div class="sc y"><div class="l">Allegro</div><div class="v" id="sBa">—</div></div>
         </div>
       </div>
     </div>
-
-    <!-- TABLE -->
-    <div class="panel">
-      <div class="ph"><div class="dot g"></div><h2>Tabela wymiarów — 5 cm do 75 cm (co 5 cm) · czas z +15%</h2></div>
-      <div style="padding:0">
-        <div class="tw2">
-          <table>
-            <thead>
-              <tr>
-                <th>Wymiar (wys × szer)</th>
-                <th class="r">Pow. cm²</th>
-                <th class="r">Materiał zł</th>
-                <th class="r">Czas (raw)</th>
-                <th class="r">Czas (+15%)</th>
-                <th class="r">Laser zł</th>
-                <th class="r">Koszty zł</th>
-                <th class="r">Sprzedaż</th>
-                <th class="r">Allegro</th>
-                <th class="r">Zysk netto</th>
-              </tr>
-            </thead>
-            <tbody id="tbl">
-              <tr><td colspan="10" style="text-align:center;padding:28px;color:var(--dim)">← Uzupełnij parametry i kliknij OBLICZ</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <div class="algo-strip">
+      <div class="ap"><div class="al">Wsp. czasu A</div><div class="av" style="color:var(--cg)" id="apA">—</div></div>
+      <div class="ap"><div class="al">Wykł. czasu B</div><div class="av" style="color:var(--cg)" id="apB">—</div></div>
+      <div class="ap"><div class="al">Wsp. szer. C</div><div class="av" style="color:var(--c)" id="apC">—</div></div>
+      <div class="ap"><div class="al">Wykł. szer. D</div><div class="av" style="color:var(--c)" id="apD">—</div></div>
     </div>
+  </div>
 
-  </div><!-- /rt -->
-</div><!-- /grid -->
+  <!-- ══ 3. TABELA ══ -->
+  <div class="card">
+    <div class="ch"><div class="led g"></div><h2>Tabela wymiarów 5 → 75 cm · kliknij wiersz = szczegóły</h2></div>
+    <div class="click-hint">Kliknij w dowolny wiersz aby zobaczyć <span>pełne podsumowanie</span> dla tego wymiaru · bufor czasu: <span id="buf-hint">+15%</span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Wymiar (wys × szer)</th>
+            <th class="r">Pow. cm²</th>
+            <th class="r">Materiał zł</th>
+            <th class="r">Czas raw</th>
+            <th class="r">Czas +15%</th>
+            <th class="r">Laser zł</th>
+            <th class="r">Koszty zł</th>
+            <th class="r">Sprzedaż</th>
+            <th class="r">Allegro</th>
+            <th class="r">Zysk</th>
+          </tr>
+        </thead>
+        <tbody id="tbl">
+          <tr><td colspan="10" style="text-align:center;padding:32px;color:var(--dim)">← Uzupełnij parametry i kliknij OBLICZ</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div><!-- /wrap -->
 
-<div class="sb">
-  <span><span class="sd">●</span> Gotowy</span>
+<div class="status">
+  <span><span class="sdot">●</span> Gotowy</span>
   <span id="st">—</span>
-  <span id="sm">Wprowadź oba punkty kalibracyjne i oblicz</span>
+  <span id="sm">Wprowadź parametry i oblicz</span>
+</div>
+
+<!-- ══ MODAL ══ -->
+<div class="overlay" id="modal" onclick="closeModal(event)">
+  <div class="modal" id="mbox">
+    <div class="mhead">
+      <div>
+        <div class="mdim" id="md-dim">—</div>
+        <div class="msub" id="md-sub">—</div>
+      </div>
+      <div class="mclose" onclick="closeModalDirect()">✕</div>
+    </div>
+    <div class="mbody">
+      <div class="mcards">
+        <div class="mc mc-c"><div class="mcl">Materiał</div><div class="mcv" id="md-mat">—</div><div class="mcs" id="md-mat-sub">—</div></div>
+        <div class="mc mc-o"><div class="mcl">Laser (+15%)</div><div class="mcv" id="md-laser">—</div><div class="mcs" id="md-laser-sub">—</div></div>
+        <div class="mc mc-m"><div class="mcl">Koszty razem</div><div class="mcv" id="md-costs">—</div><div class="mcs">mat + laser + pakowanie</div></div>
+        <div class="mc mc-g"><div class="mcl">Cena sprzedaży</div><div class="mcv" id="md-sell">—</div><div class="mcs" id="md-sell-sub">—</div></div>
+        <div class="mc mc-y"><div class="mcl">Cena Allegro</div><div class="mcv" id="md-allegro">—</div><div class="mcs" id="md-allegro-sub">—</div></div>
+        <div class="mc mc-p"><div class="mcl">Zysk netto</div><div class="mcv" id="md-profit">—</div><div class="mcs" id="md-profit-sub">—</div></div>
+      </div>
+      <div class="dtbl">
+        <div class="dr"><span class="drl">Wymiar (wys × szer)</span><span class="drv" id="dd-dim">—</span></div>
+        <div class="dr"><span class="drl">Powierzchnia</span><span class="drv" id="dd-area">—</span></div>
+        <div class="dr"><span class="drl">Grubość materiału</span><span class="drv" id="dd-thick">—</span></div>
+        <div class="dr"><span class="drl">Cena materiału za cm²</span><span class="drv" id="dd-matprice">—</span></div>
+        <div class="dr"><span class="drl">Koszt materiału</span><span class="drv" id="dd-mat">—</span></div>
+        <div class="dr"><span class="drl">Czas lasera (raw)</span><span class="drv" id="dd-traw">—</span></div>
+        <div class="dr"><span class="drl">Czas lasera (+15%)</span><span class="drv" id="dd-tadj">—</span></div>
+        <div class="dr"><span class="drl">Stawka lasera</span><span class="drv" id="dd-rate">—</span></div>
+        <div class="dr"><span class="drl">Koszt pracy lasera</span><span class="drv" id="dd-laser">—</span></div>
+        <div class="dr"><span class="drl">Koszt pakowania</span><span class="drv" id="dd-pack">—</span></div>
+        <div class="dr"><span class="drl">Dodatkowe koszty</span><span class="drv" id="dd-extra">—</span></div>
+        <div class="dr"><span class="drl">Suma kosztów produkcji</span><span class="drv hl" id="dd-totcost">—</span></div>
+        <div class="dr"><span class="drl">Marża</span><span class="drv" id="dd-margin">—</span></div>
+        <div class="dr"><span class="drl">Cena sprzedaży (po marży)</span><span class="drv hl" id="dd-sell">—</span></div>
+        <div class="dr"><span class="drl">Prowizja Allegro</span><span class="drv" id="dd-allegfee">—</span></div>
+        <div class="dr"><span class="drl">Cena na Allegro</span><span class="drv hlo" id="dd-allegro">—</span></div>
+        <div class="dr"><span class="drl">Zysk netto</span><span class="drv" id="dd-profit">—</span></div>
+      </div>
+      <div class="pbar-wrap">
+        <div class="pbar-lbl">Udział zysku w cenie sprzedaży</div>
+        <div class="pbar-track"><div class="pbar-fill" id="pbar" style="width:0%"></div></div>
+        <div class="pbar-nums">
+          <span style="color:var(--dim)">koszty: <span id="pbar-cost" style="color:var(--txt)">—</span></span>
+          <span style="color:var(--cg)">zysk: <span id="pbar-profit">—</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-// ─── Grubości materiału (zł/cm²) ───────────────────────────────
-// Bazowa: 3mm = 0.0038 zł/cm²  (podana przez użytkownika)
-// Pozostałe proporcjonalnie do grubości
-const TH = [3,4,5,6,8,10,12,15,18,20];
-const MP = {3:0.0038,4:0.0050,5:0.0063,6:0.0075,8:0.0100,10:0.0125,12:0.0150,15:0.0188,18:0.0225,20:0.0250};
-let selTh = 4;
+const TH=[3,4,5,6,8,10,12,15,18,20];
+const MP={3:.0038,4:.0050,5:.0063,6:.0075,8:.0100,10:.0125,12:.0150,15:.0188,18:.0225,20:.0250};
+let selTh=4;
+const DIMS=[5,10,15,20,25,30,35,40,45,50,55,60,65,70,75];
 
-function buildTG() {
-  const g = document.getElementById('tg');
-  g.innerHTML = '';
-  TH.forEach(t => {
-    const b = document.createElement('div');
-    b.className = 'tb' + (t===selTh?' on':'');
-    b.textContent = t+'mm';
-    b.onclick = () => {
-      selTh = t;
-      buildTG();
-      document.getElementById('mat_price').value = MP[t].toFixed(4);
-      document.getElementById('mhint').textContent = t+'mm: '+MP[t].toFixed(4)+' zł/cm²';
-    };
+function buildTG(){
+  const g=document.getElementById('tg');g.innerHTML='';
+  TH.forEach(t=>{
+    const b=document.createElement('div');
+    b.className='tb'+(t===selTh?' on':'');
+    b.textContent=t+'mm';
+    b.onclick=()=>{selTh=t;buildTG();document.getElementById('mat_price').value=MP[t].toFixed(4);document.getElementById('mhint').textContent=t+'mm: '+MP[t].toFixed(4)+' zł/cm²'};
     g.appendChild(b);
   });
 }
 buildTG();
 
-// ─── Helpers ───────────────────────────────────────────────────
-const DIMS = [5,10,15,20,25,30,35,40,45,50,55,60,65,70,75];
-const RA = 5, RB = 10;
-const TIME_BUFFER = 1.15; // +15%
+function gv(id){return parseFloat(document.getElementById(id).value)||0}
+function gi(id){return parseInt(document.getElementById(id).value)||0}
+function s2s(s){const m=Math.floor(s/60),sc=Math.round(s%60);return m+'min '+String(sc).padStart(2,'0')+'s'}
+function fz(v,d=2){return v.toFixed(d).replace('.',',')+' zł'}
 
-function gv(id) { return parseFloat(document.getElementById(id).value)||0; }
-function gi(id) { return parseInt(document.getElementById(id).value)||0; }
-
-function s2str(sec) {
-  const m=Math.floor(sec/60), s=Math.round(sec%60);
-  return m+'min '+String(s).padStart(2,'0')+'s';
-}
-function fz(v,d=2) {
-  return v.toFixed(d).replace('.',',')+' zł';
-}
-function fz4(v) { return v.toFixed(4).replace('.',','); }
-
-// ─── Power law fit ─────────────────────────────────────────────
-// f(x) = K * x^E
-// K = y1 / x1^E,  E = (ln y2 - ln y1) / (ln x2 - ln x1)
-function powerFit(x1,y1,x2,y2) {
-  if(y1<=0||y2<=0||x1<=0||x2<=0) return null;
-  const E = (Math.log(y2)-Math.log(y1))/(Math.log(x2)-Math.log(x1));
-  const K = y1/Math.pow(x1,E);
-  return {K,E};
+function powerFit(x1,y1,x2,y2){
+  if(y1<=0||y2<=0||x1<=0||x2<=0)return null;
+  const E=(Math.log(y2)-Math.log(y1))/(Math.log(x2)-Math.log(x1));
+  return{K:y1/Math.pow(x1,E),E};
 }
 
-// ─── Single product calculation ────────────────────────────────
-function calcRow(height, width, timeSecRaw, matP, laserR, packC, extraC, marg, alleg) {
-  // +15% buffer on time
-  const timeAdj  = timeSecRaw * TIME_BUFFER;
-  // Area = height × width (both in cm) → cm²
-  const area      = height * width;
-  // Material cost = area × price_per_cm²
-  const matCost   = area * matP;
-  // Laser cost = (adjusted_time_in_minutes) × rate
-  const laserCost = (timeAdj / 60) * laserR;
-  // Total production cost
-  const totCost   = matCost + laserCost + packC + extraC;
-  // Sell price: cost / (1 - margin%)  e.g. 20% margin → divide by 0.80
-  const sellP     = marg < 100 ? totCost / (1 - marg/100) : totCost;
-  // Allegro price: sell / (1 - allegro%)
-  const allegP    = alleg < 100 ? sellP / (1 - alleg/100) : sellP;
-  const profit    = sellP - totCost;
-  return {area, matCost, timeAdj, laserCost, totCost, sellP, allegP, profit};
+function calcRow(h,w,tRaw,matP,laserR,packC,extraC,marg,alleg,timeBuf){
+  const tAdj=tRaw*timeBuf,area=h*w;
+  const matCost=area*matP,laserCost=(tAdj/60)*laserR;
+  const totCost=matCost+laserCost+packC+extraC;
+  const sellP=marg<100?totCost/(1-marg/100):totCost;
+  const allegP=alleg<100?sellP/(1-alleg/100):sellP;
+  return{area,matCost,tAdj,laserCost,totCost,sellP,allegP,profit:sellP-totCost,tRaw};
 }
 
-// ─── MAIN ──────────────────────────────────────────────────────
-function calculate() {
-  const w5   = gv('w5');
-  const t5   = gi('t5m')*60 + gi('t5s');
-  const w10  = gv('w10');
-  const t10  = gi('t10m')*60 + gi('t10s');
-  const matP = gv('mat_price');
-  const laserR = gv('laser_rate');
-  const marg   = gv('margin');
-  const alleg  = gv('allegro');
-  const packC  = gv('pack');
-  const extraC = gv('extra');
+let gMatP=0,gLaserR=0,gMarg=0,gAlleg=0,gPackC=0,gExtraC=0,gTimeBuf=1.15;
+let gWFit=null,gTFit=null;
 
-  // Validation
-  if(w5<=0||w10<=0){ alert('Podaj szerokości dla Ref A i Ref B!'); return; }
-  if(t5<=0||t10<=0){ alert('Podaj czasy lasera dla Ref A i Ref B!'); return; }
-  if(matP<=0)       { alert('Podaj cenę materiału!'); return; }
+function calculate(){
+  const w5=gv('w5'),t5=gi('t5m')*60+gi('t5s');
+  const w10=gv('w10'),t10=gi('t10m')*60+gi('t10s');
+  gMatP=gv('mat_price');gLaserR=gv('laser_rate');
+  gMarg=gv('margin');gAlleg=gv('allegro');
+  gPackC=gv('pack');gExtraC=gv('extra');
+  const TIME_BUF=1+(gv('time_buf')/100);
+  gTimeBuf=TIME_BUF;
 
-  // ── Fit power laws ──────────────────────────────────────────
-  const wFit = powerFit(RA, w5, RB, w10);  // width vs height
-  const tFit = powerFit(RA, t5, RB, t10);  // raw time vs height
+  if(w5<=0||w10<=0){alert('Podaj szerokości Ref A i Ref B!');return}
+  if(t5<=0||t10<=0){alert('Podaj czasy lasera!');return}
+  if(gMatP<=0){alert('Podaj cenę materiału!');return}
 
-  function predW(h) { return wFit ? wFit.K * Math.pow(h, wFit.E) : w5*(h/RA); }
-  function predT(h) { return tFit ? tFit.K * Math.pow(h, tFit.E) : t5*Math.pow(h/RA,2); }
+  gWFit=powerFit(5,w5,10,w10);
+  gTFit=powerFit(5,t5,10,t10);
 
-  // ── Show algo params ────────────────────────────────────────
-  document.getElementById('apA').textContent = tFit ? tFit.K.toFixed(5) : '—';
-  document.getElementById('apB').textContent = tFit ? tFit.E.toFixed(5) : '—';
-  document.getElementById('apC').textContent = wFit ? wFit.K.toFixed(5) : '—';
-  document.getElementById('apD').textContent = wFit ? wFit.E.toFixed(5) : '—';
+  document.getElementById('apA').textContent=gTFit?gTFit.K.toFixed(5):'—';
+  document.getElementById('apB').textContent=gTFit?gTFit.E.toFixed(5):'—';
+  document.getElementById('apC').textContent=gWFit?gWFit.K.toFixed(5):'—';
+  document.getElementById('apD').textContent=gWFit?gWFit.E.toFixed(5):'—';
 
-  // ── Summary cards for ref points ────────────────────────────
-  const rA = calcRow(RA, w5,  t5,  matP, laserR, packC, extraC, marg, alleg);
-  const rB = calcRow(RB, w10, t10, matP, laserR, packC, extraC, marg, alleg);
+  const rA=calcRow(5,w5,t5,gMatP,gLaserR,gPackC,gExtraC,gMarg,gAlleg,TIME_BUF);
+  const rB=calcRow(10,w10,t10,gMatP,gLaserR,gPackC,gExtraC,gMarg,gAlleg,TIME_BUF);
+  document.getElementById('sAm').textContent=fz(rA.matCost,4);
+  document.getElementById('sAl').textContent=fz(rA.laserCost);
+  document.getElementById('sAs').textContent=fz(rA.sellP);
+  document.getElementById('sAa').textContent=fz(rA.allegP);
+  document.getElementById('sBm').textContent=fz(rB.matCost,4);
+  document.getElementById('sBl').textContent=fz(rB.laserCost);
+  document.getElementById('sBs').textContent=fz(rB.sellP);
+  document.getElementById('sBa').textContent=fz(rB.allegP);
 
-  document.getElementById('sAm').textContent = fz(rA.matCost,4);
-  document.getElementById('sAl').textContent = fz(rA.laserCost);
-  document.getElementById('sAs').textContent = fz(rA.sellP);
-  document.getElementById('sAa').textContent = fz(rA.allegP);
+  const predW=h=>gWFit?gWFit.K*Math.pow(h,gWFit.E):w5*(h/5);
+  const predT=h=>gTFit?gTFit.K*Math.pow(h,gTFit.E):t5*Math.pow(h/5,2);
 
-  document.getElementById('sBm').textContent = fz(rB.matCost,4);
-  document.getElementById('sBl').textContent = fz(rB.laserCost);
-  document.getElementById('sBs').textContent = fz(rB.sellP);
-  document.getElementById('sBa').textContent = fz(rB.allegP);
-
-  // ── Build table ─────────────────────────────────────────────
-  const tbody = document.getElementById('tbl');
-  tbody.innerHTML = '';
-
-  DIMS.forEach(dim => {
-    const w   = predW(dim);
-    const tRaw = predT(dim);
-    const r   = calcRow(dim, w, tRaw, matP, laserR, packC, extraC, marg, alleg);
-
-    const isA = dim === RA;
-    const isB = dim === RB;
-    const tr  = document.createElement('tr');
-    if(isA) tr.className='rA';
-    if(isB) tr.className='rB';
-
-    const badge = isA ? '<span class="bx bxa">Ref A</span>' : isB ? '<span class="bx bxb">Ref B</span>' : '';
-    const pCol  = r.profit>=0 ? 'var(--accent3)' : '#ff4444';
-
-    tr.innerHTML =
-      `<td class="dl">${dim}×${w.toFixed(1)} cm${badge}</td>`+
-      `<td class="r">${r.area.toFixed(2)}</td>`+
+  const tbody=document.getElementById('tbl');
+  tbody.innerHTML='';
+  DIMS.forEach(dim=>{
+    const w=predW(dim),tRaw=predT(dim);
+    const r=calcRow(dim,w,tRaw,gMatP,gLaserR,gPackC,gExtraC,gMarg,gAlleg,TIME_BUF);
+    const isA=dim===5,isB=dim===10;
+    const tr=document.createElement('tr');
+    if(isA)tr.className='row-a';
+    if(isB)tr.className='row-b';
+    const badge=isA?'<span class="badge ba">Ref A</span>':isB?'<span class="badge bb">Ref B</span>':'';
+    const pc=r.profit>=0?'pp':'pn';
+    tr.innerHTML=
+      `<td class="dim">${dim}×${w.toFixed(1)}cm${badge}</td>`+
+      `<td class="r">${r.area.toFixed(1)}</td>`+
       `<td class="r">${r.matCost.toFixed(4)}</td>`+
-      `<td class="r">${s2str(tRaw)}</td>`+
-      `<td class="r">${s2str(r.timeAdj)}</td>`+
+      `<td class="r">${s2s(tRaw)}</td>`+
+      `<td class="r">${s2s(r.tAdj)}</td>`+
       `<td class="r">${r.laserCost.toFixed(4)}</td>`+
       `<td class="r">${r.totCost.toFixed(4)}</td>`+
-      `<td class="r pf">${r.sellP.toFixed(2)} zł</td>`+
-      `<td class="r pa">${r.allegP.toFixed(2)} zł</td>`+
-      `<td class="r" style="color:${pCol}">${r.profit.toFixed(2)} zł</td>`;
+      `<td class="r sell">${r.sellP.toFixed(2)} zł</td>`+
+      `<td class="r alleg">${r.allegP.toFixed(2)} zł</td>`+
+      `<td class="r ${pc}">${r.profit.toFixed(2)} zł</td>`;
+    tr.addEventListener('click',()=>openModal(dim,w,tRaw,r,gTimeBuf));
     tbody.appendChild(tr);
   });
 
-  const now = new Date();
-  document.getElementById('st').textContent = now.toLocaleTimeString('pl-PL');
-  document.getElementById('sm').textContent =
-    '✓ Obliczono '+DIMS.length+' wymiarów · grubość: '+selTh+'mm · '+matP.toFixed(4)+' zł/cm² · czas +15%';
+  const now=new Date();
+  document.getElementById('st').textContent=now.toLocaleTimeString('pl-PL');
+  document.getElementById('buf-hint').textContent='+'+gv('time_buf')+'%';
+  document.getElementById('sm').textContent='✓ Obliczono '+DIMS.length+' wymiarów · bufor czasu: +'+gv('time_buf')+'% · kliknij wiersz = szczegóły';
 }
 
-window.onload = () => calculate();
+function openModal(dim,w,tRaw,r,timeBuf){
+  const bufPct=timeBuf?((timeBuf-1)*100).toFixed(0):0;
+  document.getElementById('md-dim').innerHTML=`${dim}<span>×${w.toFixed(1)}</span> cm`;
+  document.getElementById('md-sub').textContent=`Grubość: ${selTh}mm · Pow: ${r.area.toFixed(2)} cm² · Czas raw: ${s2s(tRaw)} · +${bufPct}%: ${s2s(r.tAdj)}`;
+  document.getElementById('md-mat').textContent=fz(r.matCost,4);
+  document.getElementById('md-mat-sub').textContent=r.area.toFixed(2)+' cm² × '+gMatP.toFixed(4)+' zł';
+  document.getElementById('md-laser').textContent=fz(r.laserCost);
+  document.getElementById('md-laser-sub').textContent=s2s(r.tAdj)+' × '+gLaserR.toFixed(2)+' zł/min';
+  document.getElementById('md-costs').textContent=fz(r.totCost);
+  document.getElementById('md-sell').textContent=fz(r.sellP);
+  document.getElementById('md-sell-sub').textContent='marża '+gMarg+'%';
+  document.getElementById('md-allegro').textContent=fz(r.allegP);
+  document.getElementById('md-allegro-sub').textContent='prowizja '+gAlleg+'%';
+  const mp=document.getElementById('md-profit');
+  mp.textContent=fz(r.profit);mp.style.color=r.profit>=0?'var(--cg)':'#ff5252';
+  document.getElementById('md-profit-sub').textContent=r.profit>=0?'✓ zysk':'✗ strata';
+
+  document.getElementById('dd-dim').textContent=`${dim} × ${w.toFixed(2)} cm`;
+  document.getElementById('dd-area').textContent=r.area.toFixed(4)+' cm²';
+  document.getElementById('dd-thick').textContent=selTh+' mm';
+  document.getElementById('dd-matprice').textContent=gMatP.toFixed(4)+' zł/cm²';
+  document.getElementById('dd-mat').textContent=fz(r.matCost,4);
+  document.getElementById('dd-traw').textContent=s2s(tRaw)+' ('+tRaw.toFixed(1)+'s)';
+  document.getElementById('dd-tadj').textContent=s2s(r.tAdj)+' (+'+bufPct+'%, '+r.tAdj.toFixed(1)+'s)';
+  document.getElementById('dd-rate').textContent=gLaserR.toFixed(2)+' zł/min';
+  document.getElementById('dd-laser').textContent=fz(r.laserCost,4);
+  document.getElementById('dd-pack').textContent=fz(gPackC,2);
+  document.getElementById('dd-extra').textContent=fz(gExtraC,2);
+  document.getElementById('dd-totcost').textContent=fz(r.totCost,4);
+  document.getElementById('dd-margin').textContent=gMarg+'%';
+  document.getElementById('dd-sell').textContent=fz(r.sellP);
+  document.getElementById('dd-allegfee').textContent=gAlleg+'%';
+  document.getElementById('dd-allegro').textContent=fz(r.allegP);
+  const ddp=document.getElementById('dd-profit');
+  ddp.textContent=fz(r.profit);ddp.style.color=r.profit>=0?'var(--cg)':'#ff5252';
+
+  const pct=r.sellP>0?Math.max(0,Math.min(100,(r.profit/r.sellP)*100)):0;
+  document.getElementById('pbar').style.width=pct.toFixed(1)+'%';
+  document.getElementById('pbar-cost').textContent=fz(r.totCost);
+  document.getElementById('pbar-profit').textContent=fz(r.profit)+' ('+pct.toFixed(1)+'%)';
+
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(e){if(e.target===document.getElementById('modal'))closeModalDirect()}
+function closeModalDirect(){document.getElementById('modal').classList.remove('open');document.body.style.overflow=''}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalDirect()});
+window.onload=()=>calculate();
 </script>
 </body>
 </html>
